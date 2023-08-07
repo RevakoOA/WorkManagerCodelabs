@@ -21,6 +21,10 @@ import com.example.bluromatic.R
 object BlurAmountData {
     val blurAmount = listOf(
         BlurAmount(
+            blurAmountRes = R.string.blur_lv_0,
+            blurAmount = 0
+        ),
+        BlurAmount(
             blurAmountRes = R.string.blur_lv_1,
             blurAmount = 1
         ),

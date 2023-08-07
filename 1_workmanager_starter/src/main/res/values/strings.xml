@@ -29,6 +29,7 @@
     <string name="description_image">The image to blur and save.</string>
 
     <!-- Blur levels -->
+    <string name="blur_lv_0">No blur</string>
     <string name="blur_lv_1">A little blurred</string>
     <string name="blur_lv_2">More blurred</string>
     <string name="blur_lv_3">The most blurred</string>

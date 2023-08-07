@@ -55,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bluromatic.R
 import com.example.bluromatic.data.BlurAmount
+import com.example.bluromatic.data.BlurAmountData
 import com.example.bluromatic.ui.theme.BluromaticTheme
 
 @Composable
@@ -171,7 +172,7 @@ fun BluromaticScreenContentPreview() {
     BluromaticTheme {
         BluromaticScreenContent(
             blurUiState = BlurUiState.Default,
-            blurAmountOptions = listOf(BlurAmount(R.string.blur_lv_1, 1)),
+            blurAmountOptions = BlurAmountData.blurAmount,
             {},
             {}
         )
