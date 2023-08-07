@@ -19,6 +19,7 @@ package com.example.bluromatic.data
 import android.content.Context
 import android.net.Uri
 import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -27,6 +28,8 @@ import com.example.bluromatic.KEY_BLUR_LEVEL
 import com.example.bluromatic.KEY_IMAGE_URI
 import com.example.bluromatic.getImageUri
 import com.example.bluromatic.workers.BlurWorker
+import com.example.bluromatic.workers.CleanupWorker
+import com.example.bluromatic.workers.SaveImageToFileWorker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -41,14 +44,20 @@ class WorkManagerBluromaticRepository(private val context: Context) : Bluromatic
      * @param blurLevel The amount to blur the image
      */
     override fun applyBlur(blurLevel: Int) {
-        val imageUri = context.getImageUri()
-        val blurInputData = createInputDataForWorkRequest(blurLevel, imageUri)
+        workManager
+            // Default way to create worker request
+            .beginWith(OneTimeWorkRequest.Companion.from(CleanupWorker::class.java))
+            .then(let {
+                val imageUri = context.getImageUri()
+                val blurInputData = createInputDataForWorkRequest(blurLevel, imageUri)
 
-        val workRequest = OneTimeWorkRequestBuilder<BlurWorker>()
-            .setInputData(blurInputData)
-            .build()
-
-        workManager.enqueue(workRequest)
+                // Another way to create worker request from extensions library
+                OneTimeWorkRequestBuilder<BlurWorker>()
+                    .setInputData(blurInputData)
+                    .build()
+            })
+            .then(OneTimeWorkRequestBuilder<SaveImageToFileWorker>().build())
+            .enqueue()
     }
 
     /**

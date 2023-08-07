@@ -45,7 +45,7 @@ class BlurWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
 
                 val outputUri = writeBitmapToFile(applicationContext, blurredBitmap)
 
-                val outputData = workDataOf(KEY_IMAGE_URI to outputUri)
+                val outputData = workDataOf(KEY_IMAGE_URI to outputUri.toString())
                 Result.success(outputData)
             } catch (e: Exception) {
                 Log.e(TAG, applicationContext.getString(R.string.error_applying_blur), e)
