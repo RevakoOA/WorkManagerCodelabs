@@ -66,7 +66,6 @@ android {
 }
 
 dependencies {
-
     implementation(platform("androidx.compose:compose-bom:2023.05.01"))
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.activity:activity-ktx:1.7.2")
