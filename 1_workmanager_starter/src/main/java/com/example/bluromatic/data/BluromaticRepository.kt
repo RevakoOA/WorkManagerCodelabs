@@ -21,6 +21,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface BluromaticRepository {
     val outputWorkInfo: Flow<WorkInfo?>
-    fun applyBlur(blurLevel: Int)
+    suspend fun applyBlur(blurLevel: Int): String?
     fun cancelWork()
 }

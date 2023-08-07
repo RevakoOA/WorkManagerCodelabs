@@ -19,6 +19,7 @@ package com.example.bluromatic.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.bluromatic.BluromaticApplication
@@ -26,6 +27,7 @@ import com.example.bluromatic.data.BlurAmountData
 import com.example.bluromatic.data.BluromaticRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 /**
  * [BlurViewModel] starts and stops the WorkManger and applies blur to the image. Also updates the
@@ -35,7 +37,8 @@ class BlurViewModel(private val bluromaticRepository: BluromaticRepository) : Vi
 
     internal val blurAmount = BlurAmountData.blurAmount
 
-    val blurUiState: StateFlow<BlurUiState> = MutableStateFlow(BlurUiState.Default)
+    val _blurUiState = MutableStateFlow<BlurUiState>(BlurUiState.Default)
+    val blurUiState: StateFlow<BlurUiState> = _blurUiState
 
     /**
      * Call the method from repository to create the WorkRequest to apply the blur
@@ -43,7 +46,14 @@ class BlurViewModel(private val bluromaticRepository: BluromaticRepository) : Vi
      * @param blurLevel The amount to blur the image
      */
     fun applyBlur(blurLevel: Int) {
-        bluromaticRepository.applyBlur(blurLevel)
+        viewModelScope.launch {
+            val imageUrl = bluromaticRepository.applyBlur(blurLevel)
+            _blurUiState.value = if (imageUrl == null) {
+                BlurUiState.Default
+            } else {
+                BlurUiState.Complete(imageUrl)
+            }
+        }
     }
 
     /**

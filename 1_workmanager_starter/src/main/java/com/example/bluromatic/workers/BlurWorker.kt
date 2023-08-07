@@ -41,7 +41,11 @@ class BlurWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
                 val bitmap =
                     BitmapFactory.decodeStream(resolver.openInputStream(Uri.parse(imageUri)))
 
-                val blurredBitmap = blurBitmap(bitmap, blurLevel)
+                val blurredBitmap = if (blurLevel == 0) {
+                    bitmap
+                } else {
+                    blurBitmap(bitmap, blurLevel)
+                }
 
                 val outputUri = writeBitmapToFile(applicationContext, blurredBitmap)
 

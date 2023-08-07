@@ -18,6 +18,7 @@ package com.example.bluromatic.data
 
 import android.content.Context
 import android.net.Uri
+import androidx.lifecycle.asFlow
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
@@ -30,8 +31,13 @@ import com.example.bluromatic.getImageUri
 import com.example.bluromatic.workers.BlurWorker
 import com.example.bluromatic.workers.CleanupWorker
 import com.example.bluromatic.workers.SaveImageToFileWorker
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 
 class WorkManagerBluromaticRepository(private val context: Context) : BluromaticRepository {
 
@@ -42,8 +48,11 @@ class WorkManagerBluromaticRepository(private val context: Context) : Bluromatic
     /**
      * Create the WorkRequests to apply the blur and save the resulting image
      * @param blurLevel The amount to blur the image
+     *
+     * @return url to permanent image or null if something has failed.
      */
-    override fun applyBlur(blurLevel: Int) {
+    override suspend fun applyBlur(blurLevel: Int): String? {
+        val storeImageWorker = OneTimeWorkRequestBuilder<SaveImageToFileWorker>().build()
         workManager
             // Default way to create worker request
             .beginWith(OneTimeWorkRequest.Companion.from(CleanupWorker::class.java))
@@ -56,8 +65,14 @@ class WorkManagerBluromaticRepository(private val context: Context) : Bluromatic
                     .setInputData(blurInputData)
                     .build()
             })
-            .then(OneTimeWorkRequestBuilder<SaveImageToFileWorker>().build())
+            .then(storeImageWorker)
             .enqueue()
+
+        return GlobalScope.async {
+            val workInfo = workManager.getWorkInfoByIdLiveData(storeImageWorker.id).asFlow()
+                .filter { workInfo -> workInfo.state.isFinished }.take(1).toList()[0]
+            return@async workInfo.outputData.getString(KEY_IMAGE_URI)
+        }.await()
     }
 
     /**

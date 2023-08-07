@@ -53,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.bluromatic.R
 import com.example.bluromatic.data.BlurAmount
 import com.example.bluromatic.data.BlurAmountData
@@ -85,9 +86,11 @@ fun BluromaticScreenContent(
 ) {
     var selectedValue by rememberSaveable { mutableStateOf(1) }
     val context = LocalContext.current
+
     Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))) {
-        Image(
-            painter = painterResource(R.drawable.android_cupcake),
+        AsyncImage(
+            model = (blurUiState as? BlurUiState.Complete)?.outputUri,
+            fallback = painterResource(R.drawable.android_cupcake),
             contentDescription = stringResource(R.string.description_image),
             modifier = Modifier
                 .fillMaxWidth()
