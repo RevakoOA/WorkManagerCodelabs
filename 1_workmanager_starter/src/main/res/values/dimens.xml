@@ -16,5 +16,5 @@
 -->
 
 <resources>
-    <dimen name="padding_small">8.dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
 </resources>
